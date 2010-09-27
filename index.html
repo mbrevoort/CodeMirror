@@ -21,7 +21,9 @@
 <p>This is a simple demonstration of the XQuery code highlighting module
 for <a href="http://codemirror.net/">CodeMirror</a>. The <a
 href="http://github.com/mbrevoort/CodeMirror/raw/master/contrib/xquery/js/parsexquery.js">javascript</a> file contains some brief comments with
-more information. Indentation has not been implemented.</p>
+more information. Indentation has not been implemented. Check out the <a href="index.html?stylesheet=xqcolors">Light</a> and <a href="index.html?stylesheet=xqcolors-dark.css">Dark</a> styles.</p>
+
+
 
 <div class="border">
 <textarea id="code" cols="120" rows="50">
@@ -420,14 +422,28 @@ return element element {
 </div>
 
 <script type="text/javascript">
+  var stylesheet = "http://github.com/mbrevoort/CodeMirror/raw/master/contrib/xquery/css/" + getUrlParameter('stylesheet', 'xqcolors.css');
   var editor = CodeMirror.fromTextArea('code', {
     height: "550px",
     parserfile: ["http://github.com/mbrevoort/CodeMirror/raw/master/contrib/xquery/js/tokenizexquery.js", "http://github.com/mbrevoort/CodeMirror/raw/master/contrib/xquery/js/parsexquery.js" ],
-    stylesheet: ["http://github.com/mbrevoort/CodeMirror/raw/master/contrib/xquery/css/xqcolors.css"],
+    stylesheet: [stylesheet],
     path: "http://github.com/mbrevoort/CodeMirror/raw/master/js/",
     continuousScanning: false, //500,
     lineNumbers: true
   });
+  
+  function getUrlParameter( name, defaultValue )
+  {
+    name = name.replace(/[\[]/,"\\\[").replace(/[\]]/,"\\\]");
+    var regexS = "[\\?&]"+name+"=([^&#]*)";
+    var regex = new RegExp( regexS );
+    var results = regex.exec( window.location.href );
+    if( results == null || $.trim(results[1]) == "")
+      return defaultValue;
+    else
+      return results[1];
+  }
+  
 </script>
   </body>
 </html>
