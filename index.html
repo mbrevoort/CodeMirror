@@ -51,35 +51,52 @@ The <a href="http://github.com/mbrevoort/CodeMirror/tree/master/contrib/xquery/"
 <div class="border">
 <textarea id="code" cols="120" rows="50">
 xquery version &quot;1.0-ml&quot;;
+
+(: some sample xquery markup to start :)
+
 (: this is
  : a 
-   "comment" :)
+   &quot;comment&quot; :)
 let $let := &lt;x attr=&quot;value&quot;&gt;&quot;test&quot;&lt;/x&gt;
-let $joe:=1
+let $timesSlapped:=1
+let $xmlWithExpression := &lt;larry eyes=&quot;poked&quot; slapped=&quot;{$timesSlapped} time&quot;&gt;
+                            &lt;friends&gt;
+                              &lt;curly&gt;The &quot;one&quot; and only&lt;/curly&gt;
+                              &lt;moe slipped=&quot;once&quot;&gt;A Friend
+                              {
+                                element slapstick { $funny },
+                                element funny { 
+                                  attribute yes { fn:true() },
+                                  $slapstick 
+                                } 
+                              }
+                              &lt;/moe&gt;
+
+                            &lt;/friends&gt;
+                          &lt;/larry&gt;
 return element element {
   attribute attribute { 1 },
-  element test { &#39;a&#39; }, 
+  element test { 'a' }, 
   attribute foo { &quot;bar&quot; },
   fn:doc()[ foo/@bar eq $let ],
   //x }    
-  
-  
+
+  (: NEXT IS BORROWED CODE FROM THE COMOMS PROJECT AS A SAMPLE :)
+
+
   module namespace comoms-dls = &quot;http://marklogic.com/comoms-dls&quot;;
   import module namespace dls = &quot;http://marklogic.com/xdmp/dls&quot; at &quot;/MarkLogic/dls.xqy&quot;;
   import module namespace comoms-util = &quot;http://marklogic.com/comoms-util&quot; at &quot;/lib/comoms-util.xqy&quot;;
   import module namespace comoms-user = &quot;http://marklogic.com/comoms-user&quot; at &quot;/lib/comoms-user.xqy&quot;;
 
-
-
-
   (:~
    : Make a call to insert and Manage. This IS NOT DONE WITHIN AN EVAL becuase
-   : haven&#39;t figured out how to pass the permissions variable through to be bound
+   : haven't figured out how to pass the permissions variable through to be bound
    :)
   declare function comoms-dls:insert($uri as xs:string, $doc as node(),  $note as xs:string){
       let $log := xdmp:log(&quot;in comoms-dls:insert.&quot;)
       let $collection := &quot;DRAFTS&quot;
-      let $permissions := (xdmp:permission(&#39;mkp-admin&#39;, &#39;update&#39;), xdmp:permission(&#39;mkp-admin&#39;, &#39;read&#39;)) 
+      let $permissions := (xdmp:permission('mkp-admin', 'update'), xdmp:permission('mkp-admin', 'read')) 
       return dls:document-insert-and-manage($uri, fn:false(), $doc, $note, $permissions, $collection)
 
       (:
@@ -94,7 +111,7 @@ return element element {
                   declare variable $collection as xs:string external;
                   declare variable $note as xs:string external;
                   dls:document-insert-and-manage($uri, fn:true(), $doc, $note, 
-                      (xdmp:permission(&#39;mkp-anon&#39;, &#39;read&#39;), xdmp:permission(&#39;mkp-admin&#39;, &#39;update&#39;)) , $collection)
+                      (xdmp:permission('mkp-anon', 'read'), xdmp:permission('mkp-admin', 'update')) , $collection)
                   &quot;
               ),
               (xs:QName(&quot;uri&quot;), $uri, xs:QName(&quot;doc&quot;), $doc, xs:QName(&quot;note&quot;), $note, xs:QName(&quot;collection&quot;), $collection)
@@ -131,7 +148,7 @@ return element element {
               declare variable $uri as xs:string external;
               declare variable $doc as node() external;
               declare variable $note as xs:string external;
-              dls:document-update($uri, $doc, $note, fn:true(), (xdmp:permission(&#39;mkp-admin&#39;, &#39;update&#39;), xdmp:permission(&#39;mkp-admin&#39;, &#39;read&#39;)) )
+              dls:document-update($uri, $doc, $note, fn:true(), (xdmp:permission('mkp-admin', 'update'), xdmp:permission('mkp-admin', 'read')) )
               &quot;
           ),
           (xs:QName(&quot;uri&quot;), $uri, xs:QName(&quot;doc&quot;), $doc, xs:QName(&quot;note&quot;), $note)
@@ -143,7 +160,7 @@ return element element {
   declare function comoms-dls:manage($uri){
       let $log := xdmp:log(&quot;in comoms-dls:manage without note.&quot;)
       return (xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-manage(&#39;&quot;, $uri, &quot;&#39;, fn:false())&quot;))
+          fn:concat(comoms-dls:_import(), &quot;dls:document-manage('&quot;, $uri, &quot;', fn:false())&quot;))
       )
   };
 
@@ -151,10 +168,10 @@ return element element {
       for $uri in $uris
       let $unpublish := (xdmp:eval(
           fn:concat(comoms-dls:_import(), 
-              &quot;import module namespace comoms-dls = &#39;http://marklogic.com/comoms-dls&#39; at &#39;/lib/comoms-dls.xqy&#39;; comoms-dls:unpublish(&#39;&quot;, 
-              $uri, &quot;&#39;)&quot;)))
+              &quot;import module namespace comoms-dls = 'http://marklogic.com/comoms-dls' at '/lib/comoms-dls.xqy'; comoms-dls:unpublish('&quot;, 
+              $uri, &quot;')&quot;)))
       let $unmanage :=  (xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-unmanage(&#39;&quot;, $uri, &quot;&#39;, fn:false(), fn:true())&quot;))
+          fn:concat(comoms-dls:_import(), &quot;dls:document-unmanage('&quot;, $uri, &quot;', fn:false(), fn:true())&quot;))
       )
       return
           xdmp:document-delete($uri)
@@ -163,31 +180,31 @@ return element element {
 
   declare function comoms-dls:checkout($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-checkout(&#39;&quot;, $uri, &quot;&#39;, fn:false())&quot;))
+          fn:concat(comoms-dls:_import(), &quot;dls:document-checkout('&quot;, $uri, &quot;', fn:false())&quot;))
   }; 
 
   declare function comoms-dls:checkin($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-checkin(&#39;&quot;, $uri, &quot;&#39;, fn:false())&quot;))
+          fn:concat(comoms-dls:_import(), &quot;dls:document-checkin('&quot;, $uri, &quot;', fn:false())&quot;))
   }; 
 
 
   declare function comoms-dls:add($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-manage(&#39;&quot;, $uri, &quot;&#39;, fn:false())&quot;)
+          fn:concat(comoms-dls:_import(), &quot;dls:document-manage('&quot;, $uri, &quot;', fn:false())&quot;)
       )    
   }; 
 
 
   declare function comoms-dls:documentHistory($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-history(&#39;&quot;, $uri, &quot;&#39;)&quot;)
+          fn:concat(comoms-dls:_import(), &quot;dls:document-history('&quot;, $uri, &quot;')&quot;)
       )
   };
 
   declare function comoms-dls:checkoutStatus($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;dls:document-checkout-status(&#39;&quot;, $uri, &quot;&#39;)&quot;)
+          fn:concat(comoms-dls:_import(), &quot;dls:document-checkout-status('&quot;, $uri, &quot;')&quot;)
       )
   };
 
@@ -196,7 +213,7 @@ return element element {
    :)
   declare function comoms-dls:docInEval($uri) {
       xdmp:eval(
-          fn:concat(comoms-dls:_import(), &quot;fn:doc(&#39;&quot;, $uri, &quot;&#39;)&quot;)
+          fn:concat(comoms-dls:_import(), &quot;fn:doc('&quot;, $uri, &quot;')&quot;)
       )
   };
 
@@ -218,13 +235,13 @@ return element element {
       let $managed_base_uri := $doc/node()/property::dls:version/dls:document-uri/text()
       let $existing :=  comoms-dls:publishedDoc($managed_base_uri)
       let $unpublishExisting := if($existing) then comoms-dls:unpublishVersion((xdmp:node-uri($existing)))  else ()
-      let $addPermissions := dls:document-add-permissions($uri, (xdmp:permission(&#39;mkp-anon&#39;, &#39;read&#39;)))
+      let $addPermissions := dls:document-add-permissions($uri, (xdmp:permission('mkp-anon', 'read')))
       return
           dls:document-add-collections($uri, (&quot;PUBLISHED&quot;))    
   };
 
   declare function comoms-dls:publishLatest($uri) {
-      (: TODO check if it&#39;s in the draft collection probably :)
+      (: TODO check if it's in the draft collection probably :)
 
       let $latest_version_uri := comoms-dls:latestVersionUri($uri)
       let $log:= xdmp:log(fn:concat(&quot;latest: &quot;, $latest_version_uri))    
@@ -273,7 +290,7 @@ return element element {
   declare function comoms-dls:unpublishVersion($version_uris as item()*) {
       for $uri in $version_uris
       return
-          let $removePermissions := dls:document-remove-permissions($uri, (xdmp:permission(&#39;mkp-anon&#39;, &#39;read&#39;)))
+          let $removePermissions := dls:document-remove-permissions($uri, (xdmp:permission('mkp-anon', 'read')))
           return dls:document-remove-collections($uri, (&quot;PUBLISHED&quot;))        
   };
 
@@ -322,7 +339,7 @@ return element element {
   (:~
    : Given a manage content url (e.g. /content/123456.xml) return the appropriate
    : version of the document based on what stage collection is being viewed and 
-   : what&#39;s published
+   : what's published
    :
    : @param $uri a manage content url (e.g. /content/123456.xml) - NOT A VERSIONED URI
    :)
@@ -428,18 +445,15 @@ return element element {
       &lt;/versions&gt;
   };
 
-
-
-
   (: ########################################################################### :)
   (: PRIVATE FUNCTIONS :)
   (: ########################################################################### :)
 
   declare function comoms-dls:_import() {
-      &quot;xquery version &#39;1.0-ml&#39;;
-       import module namespace dls = &#39;http://marklogic.com/xdmp/dls&#39; at &#39;/MarkLogic/dls.xqy&#39;; &quot; 
+      &quot;xquery version '1.0-ml';
+       import module namespace dls = 'http://marklogic.com/xdmp/dls' at '/MarkLogic/dls.xqy'; &quot; 
   };  
-  
+
   (: CODE SAMPLE BELOW BORROWED FROM PARTICK WIED :)
   declare function local:document-move-forest($uri as xs:string, $forest-ids as xs:unsignedLong*)
   {
@@ -508,7 +522,7 @@ return element element {
           let $let := &lt;x&gt;&quot;test&quot;&lt;/x&gt;
           return element element {
           attribute attribute { 1 },
-          element test { &#39;a&#39; },
+          element test { 'a' },
           attribute foo { &quot;bar&quot; },
           fn:doc()[ foo/@bar eq $let ],
           //x }
